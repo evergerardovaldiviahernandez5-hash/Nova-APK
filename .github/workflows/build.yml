@@ -43,7 +43,9 @@ jobs:
       - name: Checkout llama.cpp v0.7.0
         run: |
           git clone --depth 1 --branch "$LLAMA_REF" https://github.com/ggml-org/llama.cpp.git llama.cpp
-          test "$(git -C llama.cpp rev-parse HEAD)" = "$LLAMA_COMMIT"
+          cd llama.cpp
+          git fetch --depth 1 origin $LLAMA_COMMIT
+          git checkout $LLAMA_COMMIT
 
       - name: Build llama-server for ${{ matrix.abi }}
         run: |
