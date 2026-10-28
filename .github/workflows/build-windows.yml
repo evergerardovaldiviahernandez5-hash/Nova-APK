@@ -1,0 +1,49 @@
+name: Build Nova Windows EXE
+on:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Clone dependencies
+        run: |
+          git clone https://github.com/ggerganov/llama.cpp.git
+          git clone https://github.com/ocornut/imgui.git
+          git clone https://github.com/glfw/glfw.git
+
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.29.x'
+
+      - name: Configure and Build with MSVC (Ninja)
+        run: |
+          cd Windows
+          mkdir build
+          cd build
+          cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DGGML_AVX=OFF -DGGML_AVX2=OFF -DGGML_F16C=OFF -DGGML_FMA=OFF -DGGML_OPENMP=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded"
+          cmake --build .
+
+      - name: Package ONLY the EXE
+        run: |
+          mkdir dist
+          copy Windows\build\Nova.exe dist\
+          cd dist
+          Compress-Archive -Path Nova.exe -DestinationPath ..\Nova-Windows-EXE.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nova-Windows-EXE
+          path: Nova-Windows-EXE.zip
