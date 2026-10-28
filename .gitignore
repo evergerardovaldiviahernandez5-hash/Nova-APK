@@ -1,0 +1,27 @@
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+.idea/
+*.iml
+.cxx/
+app/src/main/jniLibs/
+
+# Local packages and signing material
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Windows / Python
+__pycache__/
+*.py[cod]
+Windows/.venv/
+Windows/.build/
+Windows/dist/
+Windows/runtime/
+
+# Design and OS scratch files
+.design-references/
+.DS_Store
+Thumbs.db

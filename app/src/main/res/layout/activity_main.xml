@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/nova_bg">
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:background="@color/nova_bg">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/nova_core"
+            android:alpha="0.48"
+            android:scaleType="centerCrop"
+            android:importantForAccessibility="no"
+            android:contentDescription="@string/nova_core_description" />
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_launcher_foreground"
+            android:contentDescription="@string/app_name"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="38sp"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:textColor="@color/nova_text"
+            android:letterSpacing="0.22" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nova_tagline"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:textColor="@color/nova_accent"
+            android:letterSpacing="0.16"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="28dp" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:indeterminateTint="@color/nova_accent"
+            android:visibility="gone"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/select_model"
+            android:textAlignment="center"
+            android:textSize="15sp"
+            android:lineSpacingMultiplier="1.25"
+            android:textColor="@color/nova_muted"
+            android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/pickModelBtn"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="@string/choose_model"
+            android:fontFamily="monospace"
+            android:textStyle="bold"
+            android:backgroundTint="@color/nova_accent"
+            android:textColor="@color/nova_bg"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/pickProjectorBtn"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="@string/choose_projector"
+            android:fontFamily="monospace"
+            android:backgroundTint="@color/nova_panel"
+            android:textColor="@color/nova_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="@string/nova_native_specs"
+            android:textSize="9sp"
+            android:fontFamily="monospace"
+            android:textColor="@color/nova_muted"
+            android:letterSpacing="0.1" />
+    </LinearLayout>
+</FrameLayout>

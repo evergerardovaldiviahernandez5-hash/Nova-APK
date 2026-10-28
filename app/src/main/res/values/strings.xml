@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NOVA</string>
+    <string name="nova_tagline">LOCAL INTELLIGENCE</string>
+    <string name="nova_core_description">Núcleo de circuitos de Nova</string>
+    <string name="select_model">Selecciona un modelo .gguf para empezar</string>
+    <string name="choose_model">Elegir modelo GGUF</string>
+    <string name="choose_projector">Añadir proyector multimodal (opcional)</string>
+    <string name="nova_native_specs">PRIVADO / OFFLINE / GGUF / RPC</string>
+</resources>

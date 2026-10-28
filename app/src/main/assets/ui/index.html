@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050a08">
+  <meta name="color-scheme" content="dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <title>Nova · IA local</title>
+  <link rel="icon" href="/assets/nova-mark.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/jetbrains-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/assets/vendor/marked.min.js" defer></script>
+  <script src="/assets/vendor/purify.min.js" defer></script>
+  <script src="/store.js" defer></script>
+  <script src="/matrix.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <div class="app-shell" id="appShell">
+    <button class="drawer-backdrop" id="drawerBackdrop" aria-label="Cerrar panel" hidden></button>
+    <aside class="sidebar" id="conversationPanel" aria-label="Conversaciones">
+      <div class="brand-block">
+        <a class="brand" href="#inicio" id="brandHome" aria-label="Nova, ir a una conversación nueva">
+          <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><use href="#nova-symbol"></use></svg>
+          <span><strong>NOVA</strong><small>LOCAL INTELLIGENCE</small></span>
+        </a>
+        <button class="icon-button mobile-only" id="closeSidebarBtn" aria-label="Cerrar conversaciones" title="Cerrar">
+          <svg><use href="#i-close"></use></svg>
+        </button>
+      </div>
+
+      <button class="primary-button new-chat-button" id="newChatBtn">
+        <svg><use href="#i-plus"></use></svg><span>Nueva conversación</span><kbd>Ctrl K</kbd>
+      </button>
+
+      <label class="search-field" for="searchInput">
+        <svg><use href="#i-search"></use></svg>
+        <input id="searchInput" type="search" placeholder="Buscar en el archivo" autocomplete="off">
+      </label>
+
+      <div class="section-label"><span>ARCHIVO LOCAL</span><span id="conversationCount">00</span></div>
+      <nav class="conversation-list" id="conversationList" aria-label="Historial de conversaciones"></nav>
+
+      <div class="sidebar-footer">
+        <div class="local-indicator"><span class="status-dot"></span><span>Datos en este dispositivo</span></div>
+        <button class="sidebar-action" id="openSettingsBtn"><svg><use href="#i-settings"></use></svg><span>Configuración del núcleo</span><svg class="end-icon"><use href="#i-chevron"></use></svg></button>
+      </div>
+    </aside>
+
+    <main class="workspace" id="inicio">
+      <header class="topbar">
+        <div class="topbar-title">
+          <button class="icon-button mobile-only" id="openSidebarBtn" aria-label="Abrir conversaciones" title="Conversaciones"><svg><use href="#i-menu"></use></svg></button>
+          <div class="conversation-heading">
+            <span class="micro-label">SESIÓN ACTIVA</span>
+            <h1 id="conversationTitle">Nueva conversación</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="connection-badge" id="connectionBadge" role="status"><span class="status-dot"></span><span id="connectionText">INICIANDO</span></div>
+          <button class="icon-button" id="renameChatBtn" aria-label="Renombrar conversación" title="Renombrar"><svg><use href="#i-edit"></use></svg></button>
+          <button class="icon-button" id="exportChatBtn" aria-label="Exportar conversación" title="Exportar Markdown"><svg><use href="#i-export"></use></svg></button>
+          <button class="icon-button desktop-telemetry-toggle" id="telemetryToggleBtn" aria-label="Mostrar telemetría" title="Telemetría"><svg><use href="#i-panel"></use></svg></button>
+        </div>
+      </header>
+
+      <section class="message-scroll" id="messageScroll" aria-label="Mensajes">
+        <div class="welcome" id="welcome">
+          <canvas id="matrixCanvas" class="matrix-canvas" aria-hidden="true"></canvas>
+          <img class="welcome-art" src="/assets/nova-core.webp" alt="Núcleo de circuitos verdes que representa la inteligencia artificial local de Nova" width="1536" height="1024">
+          <div class="welcome-content">
+            <div class="system-line"><span class="status-dot"></span> SISTEMA LOCAL / SIN NUBE</div>
+            <h2>Inteligencia local.<br><span>Control absoluto.</span></h2>
+            <p>Ejecuta modelos GGUF en tu hardware. Tus conversaciones, documentos e imágenes permanecen bajo tu control.</p>
+            <div class="welcome-specs">
+              <span>01 / PRIVADO</span><span>02 / OFFLINE</span><span>03 / GGUF</span>
+            </div>
+            <div class="suggestions" aria-label="Prompts sugeridos">
+              <button data-prompt="Explica qué es un modelo GGUF y cómo elegir una cuantización para un equipo con 4 GB de RAM."><span>Elegir un modelo ligero</span><svg><use href="#i-arrow"></use></svg></button>
+              <button data-prompt="Ayúame a organizar mi día con una lista clara de prioridades y bloques de trabajo."><span>Organizar mi día</span><svg><use href="#i-arrow"></use></svg></button>
+              <button data-prompt="Revisa este texto y mejóralo manteniendo mi tono y la idea principal: "><span>Revisar un texto</span><svg><use href="#i-arrow"></use></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="messages" id="messages" role="log" aria-live="polite" aria-relevant="additions text"></div>
+      </section>
+
+      <button class="scroll-bottom" id="scrollBottomBtn" aria-label="Ir al último mensaje" title="Último mensaje" hidden><svg><use href="#i-arrow-down"></use></svg></button>
+
+      <footer class="composer-zone">
+        <div class="attachment-preview" id="attachmentPreview" aria-label="Archivos adjuntos"></div>
+        <form class="composer" id="chatForm">
+          <input type="file" id="fileInput" accept="image/*,.txt,.md,.markdown,.csv,.json,.xml,.log,.yaml,.yml,.py,.js,.ts,.java,.kt,.cpp,.c,.h,.css,.html" multiple hidden>
+          <button class="composer-icon" id="attachBtn" type="button" aria-label="Adjuntar archivos o fotos" title="Adjuntar"><svg><use href="#i-paperclip"></use></svg></button>
+          <label class="sr-only" for="promptInput">Mensaje para Nova</label>
+          <textarea id="promptInput" rows="1" maxlength="32000" placeholder="Mensaje para Nova…" enterkeyhint="send"></textarea>
+          <button class="send-button" id="sendBtn" type="submit" aria-label="Enviar mensaje" title="Enviar"><svg><use href="#i-send"></use></svg></button>
+          <button class="stop-button" id="stopBtn" type="button" aria-label="Detener generación" title="Detener" hidden><svg><use href="#i-stop"></use></svg></button>
+        </form>
+        <div class="composer-meta"><span><kbd>Enter</kbd> enviar · <kbd>Shift Enter</kbd> nueva línea</span><span id="promptCounter">0 / 32k</span></div>
+      </footer>
+    </main>
+
+    <aside class="telemetry" id="telemetryPanel" aria-label="Telemetría del sistema">
+      <div class="telemetry-header"><span class="micro-label">TELEMETRÍA / 01</span><button class="icon-button" id="closeTelemetryBtn" aria-label="Cerrar telemetría"><svg><use href="#i-close"></use></svg></button></div>
+      <section class="core-visual" aria-label="Estado del núcleo">
+        <div class="radar"><span></span><span></span><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#nova-symbol"></use></svg></div>
+        <strong id="coreState">NÚCLEO EN ESPERA</strong><small id="modelName">Sin modelo cargado</small>
+      </section>
+      <section class="telemetry-section">
+        <h2>RENDIMIENTO</h2>
+        <dl class="metrics">
+          <div><dt>Generación</dt><dd id="tokensPerSecond">— t/s</dd></div>
+          <div><dt>Contexto</dt><dd id="contextMetric">2048</dd></div>
+          <div><dt>Hilos CPU</dt><dd id="threadsMetric">AUTO</dd></div>
+          <div><dt>RAM disponible</dt><dd id="memoryMetric">—</dd></div>
+        </dl>
+      </section>
+      <section class="telemetry-section">
+        <h2>MODO CLÚSTER</h2>
+        <div class="cluster-state"><svg><use href="#i-nodes"></use></svg><div><strong id="clusterMode">Nodo local</strong><small id="clusterDetail">RPC desactivado</small></div></div>
+        <button class="text-button" id="configureClusterBtn">Configurar nodos RPC<svg><use href="#i-arrow"></use></svg></button>
+      </section>
+      <section class="telemetry-section privacy-note"><svg><use href="#i-shield"></use></svg><div><h2>PERÍMETRO LOCAL</h2><p>Solo se aceptan conexiones del dispositivo. Los nodos RPC requieren una LAN de confianza.</p></div></section>
+      <div class="telemetry-actions"><button class="text-button" id="viewLogsBtn"><svg><use href="#i-terminal"></use></svg>Ver diagnóstico</button><button class="text-button" id="telemetrySettingsBtn"><svg><use href="#i-settings"></use></svg>Ajustes</button></div>
+    </aside>
+  </div>
+
+  <dialog class="modal settings-modal" id="settingsDialog" aria-labelledby="settingsTitle">
+    <form id="settingsForm">
+      <header class="modal-header"><div><span class="micro-label">SISTEMA / CONFIGURACIÓN</span><h2 id="settingsTitle">Núcleo de inferencia</h2></div><button class="icon-button" type="button" data-close="settingsDialog" aria-label="Cerrar configuración"><svg><use href="#i-close"></use></svg></button></header>
+      <div class="modal-body">
+        <section class="settings-section">
+          <h3>MODELO LOCAL</h3>
+          <div class="file-setting"><div><strong id="settingsModelName">Ningún modelo seleccionado</strong><small id="settingsModelMeta">Selecciona un archivo GGUF válido</small></div><button class="secondary-button" id="selectModelBtn" type="button">Cambiar modelo</button></div>
+          <div class="file-setting"><div><strong id="settingsProjectorName">Proyector multimodal no configurado</strong><small>Opcional; necesario para interpretar fotografías</small></div><button class="secondary-button" id="selectProjectorBtn" type="button">Elegir mmproj</button></div>
+        </section>
+        <section class="settings-section">
+          <h3>RECURSOS</h3>
+          <div class="settings-grid">
+            <label>Contexto<select id="contextSelect"><option value="1024">1024 tokens · mínimo</option><option value="2048" selected>2048 tokens · equilibrado</option><option value="4096">4096 tokens · amplio</option><option value="8192">8192 tokens · exigente</option></select></label>
+            <label>Hilos de CPU<input id="threadsInput" type="number" min="1" max="16" step="1" value="2" required></label>
+            <label>Lote de proceso<select id="batchSelect"><option value="32">32 · mínimo</option><option value="64" selected>64 · equilibrado</option><option value="128">128 · rápido</option><option value="256">256 · exigente</option></select></label>
+            <label>Temperatura<span class="range-value" id="temperatureValue">0.70</span><input id="temperatureInput" type="range" min="0" max="1.5" step="0.05" value="0.7"></label>
+          </div>
+          <p class="field-help">En equipos con 4 GB de RAM, comienza con 1024–2048 tokens, 2 hilos y un modelo Q4 de 1B–3B.</p>
+        </section>
+        <section class="settings-section">
+          <h3>COMPORTAMIENTO</h3>
+          <label class="stacked-label" for="systemPromptInput">Instrucción del sistema<textarea id="systemPromptInput" rows="3" maxlength="4000">Eres Nova, un asistente útil, preciso y claro. Responde en el idioma del usuario y reconoce cuando no tienes información suficiente.</textarea></label>
+          <label class="toggle-row"><span><strong>Reducir movimiento</strong><small>Desactiva Matrix y las animaciones ambientales</small></span><input id="motionToggle" type="checkbox" role="switch"></label>
+        </section>
+        <section class="settings-section cluster-settings" id="clusterSettings">
+          <div class="section-title-row"><h3>CLÚSTER RPC</h3><span class="experimental-badge">LAN DE CONFIANZA</span></div>
+          <label class="toggle-row"><span><strong>Distribuir inferencia</strong><small>Usa workers rpc-server compatibles con la misma build de llama.cpp</small></span><input id="rpcEnabledToggle" type="checkbox" role="switch"></label>
+          <label class="stacked-label" for="rpcEndpointsInput">Nodos, uno por línea<textarea id="rpcEndpointsInput" rows="3" placeholder="192.168.1.20:50052"></textarea></label>
+          <p class="field-help warning-copy">RPC no cifra el tráfico. No expongas estos puertos a Internet. Guardar reinicia el núcleo.</p>
+        </section>
+      </div>
+      <footer class="modal-footer"><span id="settingsFeedback" role="status"></span><button class="secondary-button" type="button" data-close="settingsDialog">Cancelar</button><button class="primary-button" id="saveSettingsBtn" type="submit">Guardar y reiniciar</button></footer>
+    </form>
+  </dialog>
+
+  <dialog class="modal compact-modal" id="forwardDialog" aria-labelledby="forwardTitle">
+    <form id="forwardForm">
+      <header class="modal-header"><div><span class="micro-label">MENSAJE / REENVIAR</span><h2 id="forwardTitle">Reenviar a otra conversación</h2></div><button class="icon-button" type="button" data-close="forwardDialog" aria-label="Cerrar"><svg><use href="#i-close"></use></svg></button></header>
+      <div class="modal-body"><label class="stacked-label" for="forwardTarget">Destino<select id="forwardTarget" required></select></label><p class="field-help">El contenido se copiará como un mensaje nuevo, sin enviarlo al modelo.</p></div>
+      <footer class="modal-footer"><button class="secondary-button" type="button" data-close="forwardDialog">Cancelar</button><button class="primary-button" type="submit">Reenviar mensaje</button></footer>
+    </form>
+  </dialog>
+
+  <dialog class="modal compact-modal" id="confirmDialog" aria-labelledby="confirmTitle">
+    <form id="confirmForm">
+      <header class="modal-header"><div><span class="micro-label">CONFIRMACIÓN</span><h2 id="confirmTitle">Confirmar acción</h2></div></header>
+      <div class="modal-body"><p id="confirmMessage"></p></div>
+      <footer class="modal-footer"><button class="secondary-button" type="button" data-close="confirmDialog">Cancelar</button><button class="danger-button" id="confirmActionBtn" type="submit">Eliminar</button></footer>
+    </form>
+  </dialog>
+
+  <dialog class="modal compact-modal" id="inputDialog" aria-labelledby="inputDialogTitle">
+    <form id="inputForm">
+      <header class="modal-header"><div><span class="micro-label">EDITAR / NOMBRE</span><h2 id="inputDialogTitle">Renombrar conversación</h2></div><button class="icon-button" type="button" data-close="inputDialog" aria-label="Cerrar"><svg><use href="#i-close"></use></svg></button></header>
+      <div class="modal-body"><label class="stacked-label" for="inputDialogField">Nombre<input id="inputDialogField" type="text" maxlength="80" required autocomplete="off"></label></div>
+      <footer class="modal-footer"><button class="secondary-button" type="button" data-close="inputDialog">Cancelar</button><button class="primary-button" type="submit">Guardar nombre</button></footer>
+    </form>
+  </dialog>
+
+  <dialog class="modal logs-modal" id="logsDialog" aria-labelledby="logsTitle">
+    <header class="modal-header"><div><span class="micro-label">DIAGNÓSTICO / LOCAL</span><h2 id="logsTitle">Registro del núcleo</h2></div><button class="icon-button" type="button" data-close="logsDialog" aria-label="Cerrar registros"><svg><use href="#i-close"></use></svg></button></header>
+    <div class="modal-body"><pre id="logsOutput" tabindex="0">Cargando registros…</pre></div>
+    <footer class="modal-footer"><button class="secondary-button" id="copyLogsBtn" type="button"><svg><use href="#i-copy"></use></svg>Copiar</button><button class="primary-button" id="refreshLogsBtn" type="button"><svg><use href="#i-refresh"></use></svg>Actualizar</button></footer>
+  </dialog>
+
+  <dialog class="image-viewer" id="imageViewer" aria-label="Vista de imagen"><button class="icon-button" data-close="imageViewer" aria-label="Cerrar imagen"><svg><use href="#i-close"></use></svg></button><img id="viewerImage" alt="Imagen adjunta ampliada"></dialog>
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+
+  <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="nova-symbol" viewBox="0 0 48 48"><path d="M24 3 42 13.5v21L24 45 6 34.5v-21L24 3Z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m15 32 9-18 9 18M19 26h10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/><circle cx="24" cy="24" r="2" fill="currentColor"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 13.5v-3l-2-.6-.7-1.6.9-1.9-2.1-2.1-1.9.9-1.7-.7L11 2H8l-.6 2.1-1.6.7-1.9-.9-2.1 2.1.9 1.9-.7 1.6-2 .6v3l2 .6.7 1.7-.9 1.8 2.1 2.1 1.9-.9 1.6.7L8 22h3l.6-2 1.7-.7 1.9.9 2.1-2.1-.9-1.8.7-1.7 1.9-.1Z" transform="translate(2 0) scale(.83)"/></symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></symbol>
+      <symbol id="i-edit" viewBox="0 0 24 24"><path d="m4 16-.8 4.8L8 20l11-11-4-4L4 16ZM13.5 6.5l4 4"/></symbol>
+      <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 15v5h16v-5"/></symbol>
+      <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M15 4v16"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-5-5 5 5-5 5"/></symbol>
+      <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 4v15m-5-5 5 5 5-5"/></symbol>
+      <symbol id="i-paperclip" viewBox="0 0 24 24"><path d="m8 12 7-7a4 4 0 0 1 6 6L10 22a6 6 0 0 1-8-8L13 3"/></symbol>
+      <symbol id="i-send" viewBox="0 0 24 24"><path d="m3 3 18 9-18 9 3-9-3-9Zm3 9h15"/></symbol>
+      <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="1"/><path d="M16 8V4H4v12h4"/></symbol>
+      <symbol id="i-forward" viewBox="0 0 24 24"><path d="m13 5 8 7-8 7v-4C7 15 5 17 3 20c0-8 3-12 10-12V5Z"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7V3l-2 2a9 9 0 1 0 2.5 9M20 3h-4"/></symbol>
+      <symbol id="i-nodes" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><path d="m10.5 7.5-4 8m7-8 4 8M8 19h8"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+      <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="m7 9 3 3-3 3m6 0h4"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6V3Z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 3h6l1 4H8l1-4Zm-3 4 1 14h10l1-14M10 11v6M14 11v6"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+      <symbol id="i-warning" viewBox="0 0 24 24"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5m0 3v.1"/></symbol>
+    </defs>
+  </svg>
+</body>
+</html>
